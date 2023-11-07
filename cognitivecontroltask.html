@@ -1,0 +1,543 @@
+/* CREATE AND BUILD TIMELINE */
+var timeline = [];
+
+/* ENTER FULLSCREEN MODE */
+timeline.push({
+  type: 'fullscreen',
+  fullscreen_mode: true,
+  preload_images: images
+});
+
+// GET PARTICIPANT VARIABLES FROM PROLIFIC
+var subject_id = jsPsych.data.getURLVariable('PROLIFIC_PID');
+var study_id = jsPsych.data.getURLVariable('STUDY_ID');
+var session_id = jsPsych.data.getURLVariable('SESSION_ID');
+var condition = 'HARD'
+
+jsPsych.data.addProperties({
+  subject_id: subject_id,
+  study_id: study_id,
+  session_id: session_id,
+  group: condition
+});
+
+
+/* PRELOAD IMAGES */
+var images = {
+  type: 'preload',
+  images: ['img/heart_left.png', 'img/flower_right.png',
+          'img/heart_right.png', 'img/flower_left.png',
+          'img/fixation.png', 'scarcity/easy/scenario1.png',
+          'scarcity/easy/scenario2.png', 'scarcity/easy/scenario3.png',
+          'scarcity/easy/scenario4.png','instructions/instructions1.png',
+          'instructions/instructions2.png', 'instructions/instructions3.png',
+          'instructions/instructions4.png', 'instructions/instructions5.png',
+          'instructions/instructions6.png','instructions/instructions7.png']
+};
+
+// ADD FIXATION TRIAL
+var fixation = {
+  type: 'image-keyboard-response',
+  stimulus: "img/fixation.png",
+  choices: jsPsych.NO_KEYS,
+  trial_duration: function(){
+    return jsPsych.randomization.sampleWithoutReplacement([250, 500, 750, 1000, 1250, 1500, 1750, 2000], 1)[0];
+  },
+  data: {
+    task: 'fixation'
+  }
+};
+
+var repeat_prac = false; // need this for practice trials
+
+/* WELCOME PARTICIPANTS */
+
+/* Introduction to experiment */
+
+var welcome = {
+	type: 'html-button-response',
+	stimulus: '<p>Welcome! Thank you so much for participating in this study. Press START to begin.</p><br>',
+	choices: ['START']
+};
+
+
+/* SCARCITY SCENARIOS */
+
+var scarcity_instructions = {
+  type: 'html-button-response',
+  stimulus: '<p>First, you will review a series of hypothetical scenarios each related to finances</p><br>'+
+            '<p>Please think about each scenario carefully for approximately <strong>one minute</strong>.</p><br>'+
+            '<p>Please reflect and process the scenario as if it were actually happening. Questions will be there to help guide your thinking.</p>'+
+            '<p>When you are ready to begin, please press REVIEW to begin the study.',
+  choices: ['REVIEW'],
+  post_trial_gap: 750
+}
+
+var scarcity_stimuli_easy = [
+	{ stimulus: "scarcity/easy/scenario1.png"},
+	{ stimulus: "scarcity/easy/scenario2.png"},
+	{ stimulus: "scarcity/easy/scenario3.png"},
+	{ stimulus: "scarcity/easy/scenario4.png"},
+];
+
+var scenario_review = {
+	type: 'image-keyboard-response',
+	stimulus: jsPsych.timelineVariable('stimulus'),
+	prompt: "<p>Please <strong>think</strong> about the scenario carefully for the next minute.</p>",
+	choices: jsPsych.NO_KEYS,
+	trial_duration: 30000
+};
+
+var review_check = {
+	type: 'survey-multi-choice',
+	questions: [
+    {
+      prompt: "Before we move on, were you given sufficient time to review the previous scenario?", 
+      options: ["Yes", "No"]
+      
+    },
+    {
+      prompt: "Were you able to think of a response to the situation?", 
+      options: ["Yes", "No"]
+  
+    }
+	]
+};
+
+var scarcity_procedure = {
+	timeline: [fixation, scenario_review, review_check],
+  timeline_variables: scarcity_stimuli_easy,
+	randomize_order: true
+};
+
+var scarcity_end = {
+  type: 'html-button-response',
+  stimulus: '<p>You have finished reviewing each scenario!</p>'+
+            '<p>We will now begin the cognitive experiment.<p>'+
+            '<p>When you are ready to begin the cognitive game, please press START.</p>',
+  choices: ['START'],
+  post_trial_gap: 1750
+};
+
+/* LOAD COGNITIVE TASK INSTRUCTIONS */
+
+var instructions = {
+  type: 'instructions',
+  pages: [
+    "<div><img src='instructions/instructions1.png'></img></div>",
+    "<div><img src='instructions/instructions2.png'></img></div>",
+    "<div><img src='instructions/instructions3.png'></img></div>",
+    "<div><img src='instructions/instructions4.png'></img></div>",
+    "<div><img src='instructions/instructions5.png'></img></div>",
+    "<div><img src='instructions/instructions6.png'></img></div>",
+    "<div><img src='instructions/instructions7.png'></img></div>"
+    ],
+  key_forward: 'Space',
+  show_clickable_nav: true,
+  button_label_next: 'NEXT',
+  button_label_previous: 'PREVIOUS',
+  show_page_number: true
+}
+
+var practice_block = {
+  type: "image-button-response",
+  stimulus: "begin_practice.png",
+  post_trial_gap: 2000,
+  choices: ['BEGIN']
+};
+
+var test_block = {
+  type: "image-button-response",
+  stimulus: "img/begin_experiment.png",
+  post_trial_gap: 2000,
+  choices: ['START']
+};
+
+var begin_block1 = {
+  type: "html-button-response",
+  stimulus: "Block 1",
+  post_trial_gap: 2000,
+  choices: ['BEGIN']
+};
+
+var begin_block2 = {
+  type: "html-button-response",
+  stimulus: "Block 2",
+  post_trial_gap: 2000,
+  choices: ['BEGIN']
+};
+
+var begin_block3 = {
+  type: "html-button-response",
+  stimulus: "Block 3",
+  post_trial_gap: 2000,
+  choices: ['BEGIN']
+};
+
+var begin_block4 = {
+  type: "html-button-response",
+  stimulus: "Block 4",
+  post_trial_gap: 2000,
+  choices: ['BEGIN']
+};
+
+var demographic_block = {
+  type: 'html-button-response',
+  stimulus: '<p>Thank you for your participation! </p>'+
+            '<p>The last thing will be a series of questions to capture demographic information.<p>'+
+            '<p>When you are ready to answer a few questions, please press START.</p>',
+  choices: ['START'],
+  post_trial_gap: 1750
+};
+
+/* prepare stimuli */
+var stimuli = [
+  { stimulus: "img/heart_left.png",  correct_response: 'f'},
+  { stimulus: "img/heart_right.png",  correct_response: 'j'},
+  { stimulus: "img/flower_left.png",  correct_response: 'j'},
+  { stimulus: "img/flower_right.png",  correct_response: 'f'},
+];
+
+// PREPARE TRIALS 
+var trial = {
+  type: "image-keyboard-response",
+  stimulus: jsPsych.timelineVariable('stimulus'),
+  choices: ['f', 'j'],
+  data: {
+    task: 'response',
+    correct_response: jsPsych.timelineVariable('correct_response')
+  },
+  on_finish: function(data){
+     if (data.response == data.correct_response) {
+       data.accuracy = 1
+     } else {
+       data.accuracy = 0
+     }
+  }
+};
+
+var practice_trial = {
+  type: "image-keyboard-response",
+  stimulus: jsPsych.timelineVariable('stimulus'),
+  choices: ['f', 'j'],
+  data: {
+    task: 'practice',
+    correct_response: jsPsych.timelineVariable('correct_response')
+  },
+  on_finish: function(data){
+     if (data.response == data.correct_response) {
+       data.accuracy = 1
+     } else {
+       data.accuracy = 0
+     }
+  }
+};
+
+var feedback_trial = {
+  type: "html-keyboard-response",
+  on_start: function(trial) {
+    var last_trial_accuracy = jsPsych.data.get().last(1).values()[0].accuracy;
+    if (last_trial_accuracy == 1) {
+        var feedback = "CORRECT!"; 
+    } else {
+      var feedback = "INCORRECT!"
+    }
+    
+    var feedback_trial_stim = "<div style='font-size: 60px;'><b>" + feedback + "</b></div>";
+    
+    trial.data = {screen_id: "feedback", stimulus: feedback};
+    trial.stimulus = feedback_trial_stim
+  },
+  data: {
+    task: 'feedback'
+  },
+  stimulus: "",
+  choices: jsPsych.NO_KEYS,
+  trial_duration: 1000
+}
+
+
+var practice_procedure = {
+  timeline: [fixation, practice_trial, feedback_trial],
+  timeline_variables: stimuli,
+  randomize_order: true,
+  sample: {
+    type: 'with-replacement',
+    size: 10
+  }
+} 
+
+var repeat_prac_message = {
+  type: "image-button-response",
+  stimulus: "repeat_instructions.png",
+  choices: ['REVIEW']
+};
+
+var repeat_prac_conditional = {
+  timeline: [repeat_prac_message],
+  conditional_function: function() {
+    var last_prac_trials = jsPsych.data.get().filter({task: 'practice'}).last(10);
+    var n_correct = last_prac_trials.filter({accuracy: 1}).count();
+    var prop_corr = n_correct/10
+    if (prop_corr != 1) {
+      repeat_prac = true;
+      return true;
+    } else {
+      repeat_prac = false;
+      return false;
+    }
+  }
+};
+
+var instructions_prac_loop = {
+  timeline: [instructions, practice_block, practice_procedure, repeat_prac_conditional],
+  loop_function: function() {
+    if (repeat_prac == true) {
+        return true;
+    } else {
+        return false;
+    }
+  }
+};
+
+// ADD BLOCK TRIALS
+
+var test_procedure1 = {
+  timeline: [fixation, trial],
+  timeline_variables: stimuli,
+  randomize_order: true,
+  data: {
+    block: 1
+  },
+  sample: {
+    type: 'with-replacement',
+    size: 10
+  }
+};
+
+var test_procedure2 = {
+  timeline: [fixation, trial],
+  timeline_variables: stimuli,
+  randomize_order: true,
+  data: {
+    block: 2
+  },
+  sample: {
+    type: 'with-replacement',
+    size: 10
+  }
+};
+
+var test_procedure3 = {
+  timeline: [fixation, trial],
+  timeline_variables: stimuli,
+  randomize_order: true,
+  data: {
+    block: 3
+  },
+  sample: {
+    type: 'with-replacement',
+    size: 10
+  }
+};
+
+var test_procedure4 = {
+  timeline: [fixation, trial],
+  timeline_variables: stimuli,
+  randomize_order: true,
+  data: {
+    block: 4
+  },
+  sample: {
+    type: 'with-replacement',
+    size: 10
+  }
+};
+
+
+// DEFINE DEBRIEF BLOCKS 
+
+var debrief_block1 = {
+  type: "html-keyboard-response",
+  stimulus: function() {
+
+    var trials = jsPsych.data.get().filter({task: 'response', block: 1});
+    var correct_trials = trials.filter({accuracy: 1});
+    var acc = Math.round(correct_trials.count() / trials.count() * 100);
+    var rt = Math.round(correct_trials.select('rt').mean());
+
+    return `<p>You responded correctly on ${acc}% of the trials.</p>
+      <p>Your average response time was ${rt}ms.</p>
+      <p>Press any key to begin Block 2!</p>`;
+
+  },
+  data: {
+    task: 'debrief'
+  }
+};
+
+var debrief_block2 = {
+  type: "html-keyboard-response",
+  stimulus: function() {
+
+    var trials = jsPsych.data.get().filter({task: 'response', block: 2});
+    var correct_trials = trials.filter({accuracy: 1});
+    var acc = Math.round(correct_trials.count() / trials.count() * 100);
+    var rt = Math.round(correct_trials.select('rt').mean());
+
+    return `<p>You responded correctly on ${acc}% of the trials.</p>
+      <p>Your average response time was ${rt}ms.</p>
+      <p>Press any key to begin Block 3!</p>`;
+
+  },
+  data: {
+    task: 'debrief'
+  }
+};
+
+var debrief_block3 = {
+  type: "html-keyboard-response",
+  stimulus: function() {
+
+    var trials = jsPsych.data.get().filter({task: 'response', block: 3});
+    var correct_trials = trials.filter({accuracy: 1});
+    var acc = Math.round(correct_trials.count() / trials.count() * 100);
+    var rt = Math.round(correct_trials.select('rt').mean());
+
+    return `<p>You responded correctly on ${acc}% of the trials.</p>
+      <p>Your average response time was ${rt}ms.</p>
+      <p>Press any key to begin the final Block 4!</p>`;
+
+  },
+  data: {
+    task: 'debrief'
+  }
+};
+
+var debrief_block4 = {
+  type: "html-keyboard-response",
+  stimulus: function() {
+
+    var trials = jsPsych.data.get().filter({task: 'response', block: 4});
+    var correct_trials = trials.filter({accuracy: 1});
+    var acc = Math.round(correct_trials.count() / trials.count() * 100);
+    var rt = Math.round(correct_trials.select('rt').mean());
+
+    return `<p>You responded correctly on ${acc}% of the trials.</p>
+      <p>Your average response time was ${rt}ms.</p>
+      <p>Press any key to finish the cognitive experiment!</p>`;
+
+  },
+  data: {
+    task: 'debrief'
+  }
+};
+
+
+// DEMOGRAPHIC SURVEY QUESTIONS // 
+// all questions asked individually to ease data analysis
+
+var demographic_questions = {
+  type: 'survey-text',
+  questions: [
+    {prompt: "How old are you?", placeholder: 'Please only enter numerical values. Example: 25'},
+    {prompt: "What is your date of birth?", placeholder: 'MM/DD/YYYY'},
+    {prompt: "What is your ethnicity?"},
+    {prompt: "What is your gender?"}
+  ],
+  data: {
+    task: 'demographic'
+  }
+}
+
+var ses_info = {
+  type: 'survey-multi-choice',
+  questions: [
+    {
+      prompt: "What is the highest level of education you have completed?",
+      options: ["Less than high school", "High school", "College", "Associate degree", "Bachelors degree", "Masters degree", "Doctorate"]
+    },
+    {
+      prompt: "What is your current employment status?",
+      options: ["Permanent full-time employment", "Non-permanent full-time employment", "Permanent part-time employment", "Non-permanent part-time employment", "Unemployed", "Retired", "Full-time student", "Part-time student"]
+    }
+  ],
+  data: {
+    task: 'ses'
+  }
+}
+
+var total_income = {
+  type: 'survey-multi-choice',
+  questions: [
+      {
+        prompt: "What is your approximate total household income (in USD)?",
+		    options: ["5000","10000","20000","30000","40000","50000","60000","70000","80000","90000","100000", "100000+"]
+      }
+    ],
+  data: {
+    task: 'income'
+  }
+};
+
+
+var household_size = {
+  type: 'survey-multi-choice',
+	questions: [
+		{
+		  prompt: "How many people live in your household?",
+		  options: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10+"]
+		}
+	],
+	data: {
+	  task: 'household_size'
+	}
+};
+
+// MAKE SURE TO SEND THEM BACK TO PROLIFIC TO GET CREDIT //
+var prolific_debrief = {
+  type: "html-button-response",
+  stimulus: '<p>Thanks! You have finished the entire study.</p>'+
+            '<p>Please press FINISH to save your data and return to Prolific for compensation.</p>',
+  choices: ['FINISH']
+};
+
+
+// BUILD THE TIMELINE OF THE EXPERIMENT //
+timeline.push(images);
+timeline.push(welcome);
+timeline.push(scarcity_instructions);
+timeline.push(scarcity_procedure);
+timeline.push(scarcity_end);
+timeline.push(instructions_prac_loop);
+timeline.push(test_block);
+timeline.push(begin_block1);
+timeline.push(test_procedure1);
+timeline.push(debrief_block1);
+timeline.push(begin_block2);
+timeline.push(test_procedure2);
+timeline.push(debrief_block2);
+timeline.push(begin_block3);
+timeline.push(test_procedure3);
+timeline.push(debrief_block3);
+timeline.push(begin_block4);
+timeline.push(test_procedure4);
+timeline.push(debrief_block4);
+timeline.push(demographic_block);
+timeline.push(demographic_questions);
+timeline.push(ses_info);
+timeline.push(total_income);
+timeline.push(household_size);
+timeline.push(prolific_debrief);
+
+
+
+/* start the experiment */
+jsPsych.init({
+  timeline: timeline,
+  preload_images: images,
+  show_progress_bar: true,
+  on_finish: function() {
+    window.location.href = "https://app.prolific.co/submissions/complete?cc=1ACE823C"
+  }
+});
